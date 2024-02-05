@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function to sort the requests in ascending order
+void sortRequests(int arr[], int n) {
+    int temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                // Swap the elements if they are in the wrong order
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Function to perform SCAN disk scheduling
+void SCAN(int arr[], int n, int head, char direction) {
+    int totalMovement = 0;
+    int currentIndex = 0;
+
+    // Sort the requests in ascending order
+    sortRequests(arr, n);
+
+    // Find the index where the head is located in the sorted array
+    while (currentIndex < n && arr[currentIndex] < head) {
+        currentIndex++;
+    }
+
+    // Scan towards the right
+    if (direction == 'R') {
+        for (int i = currentIndex; i < n; i++) {
+            printf("Move from %d to %d\n", head, arr[i]);
+            totalMovement += abs(head - arr[i]);
+            head = arr[i];
+        }
+
+        // Scan towards the left after reaching the rightmost request
+        printf("Move from %d to %d\n", head, 0);
+        totalMovement += head; // Move to the leftmost track
+        head = 0;
+
+        for (int i = currentIndex - 1; i >= 0; i--) {
+            printf("Move from %d to %d\n", head, arr[i]);
+            totalMovement += abs(head - arr[i]);
+            head = arr[i];
+        }
+    }
+    // Scan towards the left
+    else if (direction == 'L') {
+        for (int i = currentIndex - 1; i >= 0; i--) {
+            printf("Move from %d to %d\n", head, arr[i]);
+            totalMovement += abs(head - arr[i]);
+            head = arr[i];
+        }
+
+        // Scan towards the right after reaching the leftmost request
+        printf("Move from %d to %d\n", head, 199); // Assuming the disk size is 200
+        totalMovement += (199 - head); // Move to the rightmost track
+        head = 199;
+
+        for (int i = currentIndex; i < n; i++) {
+            printf("Move from %d to %d\n", head, arr[i]);
+            totalMovement += abs(head - arr[i]);
+            head = arr[i];
+        }
+    }
+
+    printf("Total head movement: %d\n", totalMovement);
+}
+
+int main() {
+    int n;
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &n);
+
+    int requests[n];
+    printf("Enter the disk requests: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &requests[i]);
+    }
+
+    int initialHead;
+    printf("Enter the initial head position: ");
+    scanf("%d", &initialHead);
+
+    char direction;
+    printf("Enter the direction (L for left, R for right): ");
+    scanf(" %c", &direction);
+
+    SCAN(requests, n, initialHead, direction);
+
+    return 0;
+}
