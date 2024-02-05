@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent a disk block
+struct DiskBlock {
+    int data;
+    struct DiskBlock* next;
+};
+
+// Structure to represent a file
+struct File {
+    struct DiskBlock* firstBlock;
+    struct DiskBlock* lastBlock;
+};
+
+// Function to create a new disk block
+struct DiskBlock* createDiskBlock(int data) {
+    struct DiskBlock* newBlock = (struct DiskBlock*)malloc(sizeof(struct DiskBlock));
+    newBlock->data = data;
+    newBlock->next = NULL;
+    return newBlock;
+}
+
+// Function to create a new file
+struct File* createFile() {
+    struct File* newFile = (struct File*)malloc(sizeof(struct File));
+    newFile->firstBlock = NULL;
+    newFile->lastBlock = NULL;
+    return newFile;
+}
+
+// Function to allocate a new block to a file
+void allocateBlock(struct File* file, int data) {
+    struct DiskBlock* newBlock = createDiskBlock(data);
+
+    if (file->firstBlock == NULL) {
+        // If the file is empty, set the new block as both first and last block
+        file->firstBlock = newBlock;
+        file->lastBlock = newBlock;
+    } else {
+        // Append the new block to the end of the file
+        file->lastBlock->next = newBlock;
+        file->lastBlock = newBlock;
+    }
+}
+
+// Function to display the contents of a file
+void displayFile(struct File* file) {
+    struct DiskBlock* currentBlock = file->firstBlock;
+
+    printf("File Contents:\n");
+    while (currentBlock != NULL) {
+        printf("%d ", currentBlock->data);
+        currentBlock = currentBlock->next;
+    }
+    printf("\n");
+}
+
+// Function to free the allocated memory for a file
+void freeFile(struct File* file) {
+    struct DiskBlock* currentBlock = file->firstBlock;
+    struct DiskBlock* nextBlock;
+
+    while (currentBlock != NULL) {
+        nextBlock = currentBlock->next;
+        free(currentBlock);
+        currentBlock = nextBlock;
+    }
+
+    free(file);
+}
+
+int main() {
+    // Create a new file
+    struct File* myFile = createFile();
+
+    // Allocate blocks to the file
+    allocateBlock(myFile, 10);
+    allocateBlock(myFile, 20);
+    allocateBlock(myFile, 30);
+
+    // Display the contents of the file
+    displayFile(myFile);
+
+    // Free the allocated memory for the file
+    freeFile(myFile);
+
+    return 0;
+}
